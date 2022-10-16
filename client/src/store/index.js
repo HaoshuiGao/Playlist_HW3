@@ -151,6 +151,33 @@ export const useGlobalStore = () => {
         });
     }
 
+    //this function processes create a new list
+    store.createNewList= function() {
+        let newList={
+            name:"Untitled" ,
+            songs:[]
+        }
+        
+        async function asyncCreateNewList(){
+            //this handles the storing of new data in database already
+            const response= await api.createNewList(newList);
+            let playlist=response.data.playlist;
+            //get the new list id
+            let newListId=playlist._id;
+            storeReducer({
+                type: GlobalStoreActionType.CREATE_NEW_LIST,
+                payload:playlist
+            });
+            // store.setCurrentList(newListId)
+            // enter to edit mode (same as select a list) for this list
+            async function asyncsetCurrentList(newListId){
+                await store.setCurrentList(newListId)
+            }
+            asyncsetCurrentList(newListId);
+        }
+        asyncCreateNewList();
+    }
+
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = function () {
         async function asyncLoadIdNamePairs() {
