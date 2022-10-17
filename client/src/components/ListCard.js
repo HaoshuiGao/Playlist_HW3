@@ -50,6 +50,17 @@ function ListCard(props) {
         setText(event.target.value );
     }
 
+    //determine and id of this playlist card and call show modal up
+    function openDeleteListModal(event){
+        event.stopPropagation();
+        let _id = event.target.id;
+        if (_id.indexOf('delete-list-') >= 0)
+            _id = ("" + _id).substring("delete-list-".length);
+        // let id = event.target.id.substring("delete-list-".length);
+        //console.log(_id);
+        store.showDeleteListModal(_id);
+    }
+
     let selectClass = "unselected-list-card";
     if (selected) {
         selectClass = "selected-list-card";
@@ -75,6 +86,7 @@ function ListCard(props) {
                 type="button"
                 id={"delete-list-" + idNamePair._id}
                 className="list-card-button"
+                onClick={openDeleteListModal}
                 value={"\u2715"}
             />
             <input
