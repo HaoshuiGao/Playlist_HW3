@@ -37,6 +37,23 @@ function SongCard(props) {
         // ASK THE MODEL TO MOVE THE DATA
         store.addMoveSongTransaction(sourceId.substring(0,1), targetId.substring(0,1));
     }
+    function handleOpenDeleteSongModal(event){
+        event.stopPropagation();
+        let _id = event.target.id;
+        if (_id.indexOf('remove-song-') >= 0)
+            _id = ("" + _id).substring("remove-song-".length);
+        //this _id is more refer to index of the song in list
+        store.showDeleteSongModal(_id);
+    }
+    function handleEditSong(event){
+        event.stopPropagation();
+        let _id = event.target.id;
+        //find the index of first "-" and last "-" to find the index of songs
+        let first=_id.indexOf('-');
+        let last=_id.lastIndexOf('-');
+        let index=_id.substring(first+1,last);
+        store.showEditSongModal(index);
+    }
     const { song, index } = props;
     let cardClass = "list-card unselected-list-card";
     return (
@@ -50,6 +67,7 @@ function SongCard(props) {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             draggable="true"
+            onDoubleClick={handleEditSong}
         >
             {index + 1}.
             <a
@@ -63,6 +81,7 @@ function SongCard(props) {
                 id={"remove-song-" + index}
                 className="list-card-button"
                 value={"\u2715"}
+                onClick={handleOpenDeleteSongModal}
             />
         </div>
     );
