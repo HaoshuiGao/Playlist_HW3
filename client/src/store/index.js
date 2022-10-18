@@ -283,9 +283,20 @@ export const useGlobalStore = () => {
 
     //function used for song edition
     //add a new song
-    // store.addNewSong=function(){
-
-    // }
+    store.addNewSong=function(){
+        let newSong={title:"Untitled",artist:"Unknown" ,youTubeId:"dQw4w9WgXcQ"};
+        async function asyncAddNewSong(){
+            store.currentList.songs.push(newSong)
+            //this handles the storing of new data in database already
+            const response= await api.updatePlaylistById(store.currentList._id,store.currentList);
+            async function asyncsetCurrentList(){
+                await store.setCurrentList(store.currentList._id)
+            }
+            asyncsetCurrentList();
+        }
+        asyncAddNewSong(); 
+    }
+    
 
 
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
