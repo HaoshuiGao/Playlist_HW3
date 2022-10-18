@@ -20,6 +20,7 @@ export const GlobalStoreActionType = {
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     SELECT_SONG:"SELECT_SONG",
+    EDIT_SONG:"EDIT_SONG",
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -36,7 +37,9 @@ export const useGlobalStore = () => {
         listNameActive: false,
         listForDeletion:null,
         selectSongDelete:null,
-        selectSongDeleteIndex:null
+        selectSongDeleteIndex:null,
+        selectSongEdit:null,
+        selectSongEditIndex:null
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -53,7 +56,9 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     listForDeletion:store.listForDeletion,
                     selectSongDelete:store.selectSongDelete,
-                    selectSongDeleteIndex:store.selectSongDeleteIndex
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex
                 });
             }
             // STOP EDITING THE CURRENT LIST
@@ -65,7 +70,9 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     listForDeletion:store.listForDeletion,
                     selectSongDelete:store.selectSongDelete,
-                    selectSongDeleteIndex:store.selectSongDeleteIndex
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex
                 })
             }
             // CREATE A NEW LIST
@@ -77,7 +84,9 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     listForDeletion:store.listForDeletion,
                     selectSongDelete:store.selectSongDelete,
-                    selectSongDeleteIndex:store.selectSongDeleteIndex
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -89,7 +98,9 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     listForDeletion:store.listForDeletion,
                     selectSongDelete:store.selectSongDelete,
-                    selectSongDeleteIndex:store.selectSongDeleteIndex
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex
                 });
             }
             // PREPARE TO DELETE A LIST
@@ -101,7 +112,9 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     listForDeletion: payload,
                     selectSongDelete:store.selectSongDelete,
-                    selectSongDeleteIndex:store.selectSongDeleteIndex
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex
                 });
             }
             // UPDATE A LIST
@@ -113,7 +126,9 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     listForDeletion:store.listForDeletion,
                     selectSongDelete:store.selectSongDelete,
-                    selectSongDeleteIndex:store.selectSongDeleteIndex
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex
                 });
             }
             // START EDITING A LIST NAME
@@ -125,10 +140,12 @@ export const useGlobalStore = () => {
                     listNameActive: true,
                     listForDeletion:store.listForDeletion,
                     selectSongDelete:store.selectSongDelete,
-                    selectSongDeleteIndex:store.selectSongDeleteIndex
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex
                 });
             }
-            // LIST UPDATE OF ITS NAME
+            // SONG DELETE UPDATE OF ITS OBJECT AND INDEX
             case GlobalStoreActionType.SELECT_SONG: {
                 return setStore({
                     idNamePairs: store.idNamePairs,
@@ -137,7 +154,23 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     listForDeletion:store.listForDeletion,
                     selectSongDelete:payload.selectSongDelete,
-                    selectSongDeleteIndex:payload.selectSongDeleteIndex
+                    selectSongDeleteIndex:payload.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex
+                });
+            }
+            // SONG EDIT UPDATE OF ITS OBJECT AND INDEX
+            case GlobalStoreActionType.EDIT_SONG: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    listForDeletion:store.listForDeletion,
+                    selectSongDelete:store.selectSongDelete,
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:payload.selectSongEdit,
+                    selectSongEditIndex:payload.selectSongEditIndex
                 });
             }
             default:
@@ -392,6 +425,42 @@ export const useGlobalStore = () => {
     store.showEditSongModal=function(index){
         let modal= document.getElementById("edit-song-modal");
         modal.classList.add("is-visible");
+        storeReducer({
+            type:GlobalStoreActionType.EDIT_SONG,
+            payload:{
+                selectSongEdit:store.currentList.songs[index],
+                selectSongEditIndex:index
+            }
+        })       
+        store.editSongSetDefault(index);
+    }
+    store.editSongSetDefault=function(index){
+        document.getElementById("edit-song-modal-title-textfield").value = store.currentList.songs[index].title
+        document.getElementById("edit-song-modal-artist-textfield").value = store.currentList.songs[index].artist
+        document.getElementById("edit-song-modal-youTubeId-textfield").value = store.currentList.songs[index].youTubeId
+    }
+    store.editSong=function(){
+        store.hideEditSongModal();
+        let newSong={title:document.getElementById("edit-song-modal-title-textfield").value,
+                    artist:document.getElementById("edit-song-modal-artist-textfield").value,
+                    youTubeId:document.getElementById("edit-song-modal-youTubeId-textfield").value,
+        }
+        store.currentList.songs.splice(store.selectSongEditIndex,1,newSong);
+        //backend changes-> setcurrentlist go to backend get  data-> setcurrentlist used data to update store
+        async function asyncUpdateAfterEditSong(){
+            //this handles the storing of new data in database already
+            const response= await api.updatePlaylistById(store.currentList._id,store.currentList);
+            //reset the front-end currentlist
+            async function asyncsetCurrentList(){
+                await store.setCurrentList(store.currentList._id)
+            }
+            asyncsetCurrentList();
+        }
+        asyncUpdateAfterEditSong();
+    }
+    store.hideEditSongModal=function(){
+        let modal= document.getElementById("edit-song-modal");
+        modal.classList.remove("is-visible");
     }
     store.addMoveSongTransaction=function(start,end){
         let transaction=new MoveSong_Transaction(store,start, end)

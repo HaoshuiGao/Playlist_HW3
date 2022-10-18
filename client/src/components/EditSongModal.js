@@ -16,8 +16,8 @@ function EditSongModal () {
                         <div id="you-tube-id-prompt" class="modal-prompt">You Tube Id:</div><input id="edit-song-modal-youTubeId-textfield" class='modal-textfield' type="text" />
                     </div>
                     <div class="modal-south">
-                        <input type="button" id="edit-song-confirm-button" class="modal-button" value='Confirm' onClick/>
-                        <input type="button" id="edit-song-cancel-button" class="modal-button" value='Cancel'onClick />
+                        <input type="button" id="edit-song-confirm-button" class="modal-button" value='Confirm' onClick={store.editSong}/>
+                        <input type="button" id="edit-song-cancel-button" class="modal-button" value='Cancel'onClick={store.hideEditSongModal} />
                     </div>
                 </div>
             </div>
