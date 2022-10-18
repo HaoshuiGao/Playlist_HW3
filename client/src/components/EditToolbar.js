@@ -28,7 +28,7 @@ function EditToolbar() {
         editStatus = true;
     }
     function handleAddNewSong(){
-        store.addNewSong();
+        store.AddSong_Transaction();
     }
     return (
         <span id="edit-toolbar">
