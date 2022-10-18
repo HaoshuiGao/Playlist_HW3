@@ -1,6 +1,7 @@
 import { createContext, useState } from 'react'
 import jsTPS from '../common/jsTPS'
 import api from '../api'
+import MoveSong_Transaction from '../transactions/MoveSong_Transaction';
 export const GlobalStoreContext = createContext({});
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -296,8 +297,47 @@ export const useGlobalStore = () => {
         }
         asyncAddNewSong(); 
     }
-    
 
+    //move song around
+    store.moveSong=function(start, end){
+        let list = store.currentList;
+
+        // WE NEED TO UPDATE THE STATE FOR THE APP
+        // start -= 1;
+        // end -= 1;
+        // if (start < end) {
+        //     let temp = list.songs[start];
+        //     for (let i = start; i < end; i++) {
+        //         list.songs[i] = list.songs[i + 1];
+        //     }
+        //     list.songs[end] = temp;
+        // }
+        // else if (start > end) {
+        //     let temp = list.songs[start];
+        //     for (let i = start; i > end; i--) {
+        //         list.songs[i] = list.songs[i - 1];
+        //     }
+        //     list.songs[end] = temp;
+        // }
+        let temp=list.songs[start]
+        list.songs[start]=list.songs[end]
+        list.songs[end]=temp
+        async function asyncMoveSong(){
+            //this handles the storing of new data in database already
+            const response= await api.updatePlaylistById(store.currentList._id,store.currentList);
+            async function asyncsetCurrentList(){
+                await store.setCurrentList(store.currentList._id)
+            }
+            asyncsetCurrentList();
+        }
+        asyncMoveSong(); 
+
+    }
+
+    store.addMoveSongTransaction=function(start,end){
+        let transaction=new MoveSong_Transaction(store,start, end)
+        tps.addTransaction(transaction);
+    }
 
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };
