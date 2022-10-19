@@ -4,6 +4,7 @@ import api from '../api'
 import MoveSong_Transaction from '../transactions/MoveSong_Transaction';
 import AddSong_Transaction from '../transactions/AddSong_Transaction';
 import EditSong_Transaction from '../transactions/EditSong_Transaction';
+import DeleteSong_Transaction from '../transactions/DeleteSong_Transaction';
 export const GlobalStoreContext = createContext({});
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -485,6 +486,11 @@ export const useGlobalStore = () => {
         let transaction=new EditSong_Transaction(store,store.selectSongEditIndex,oldSong,newSong);
         tps.addTransaction(transaction);
     }
+    store.deleteSong_Transaction=function(){
+        let transaction=new DeleteSong_Transaction(store);
+        tps.addTransaction(transaction);
+
+    }
 
     //undo functions for add, delete
     store.undoAddNewSong=function(){
@@ -496,6 +502,18 @@ export const useGlobalStore = () => {
             }
         })   
         store.deleteSong();
+    }
+    store.insertDeletedSongBack=function(deleteSong){
+        async function asyncinsertDeletedSongBack(){
+            store.currentList.songs.splice(store.selectSongDeleteIndex,0,deleteSong)
+            //this handles the storing of new data in database already
+            const response= await api.updatePlaylistById(store.currentList._id,store.currentList);
+            async function asyncsetCurrentList(){
+                await store.setCurrentList(store.currentList._id)
+            }
+            asyncsetCurrentList();
+        }
+        asyncinsertDeletedSongBack(); 
     }
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };
