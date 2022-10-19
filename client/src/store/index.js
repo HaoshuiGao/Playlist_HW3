@@ -3,6 +3,7 @@ import jsTPS from '../common/jsTPS'
 import api from '../api'
 import MoveSong_Transaction from '../transactions/MoveSong_Transaction';
 import AddSong_Transaction from '../transactions/AddSong_Transaction';
+import EditSong_Transaction from '../transactions/EditSong_Transaction';
 export const GlobalStoreContext = createContext({});
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -221,6 +222,7 @@ export const useGlobalStore = () => {
             type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
             payload: {}
         });
+        tps.clearAllTransactions();
     }
 
     //this function processes used for new list creation
@@ -423,6 +425,7 @@ export const useGlobalStore = () => {
         })
     }
 
+    //methods for all edit song functions
     store.showEditSongModal=function(index){
         let modal= document.getElementById("edit-song-modal");
         modal.classList.add("is-visible");
@@ -440,13 +443,12 @@ export const useGlobalStore = () => {
         document.getElementById("edit-song-modal-artist-textfield").value = store.currentList.songs[index].artist
         document.getElementById("edit-song-modal-youTubeId-textfield").value = store.currentList.songs[index].youTubeId
     }
-    store.editSong=function(){
+    store.editSong=function(index,newSong){
         store.hideEditSongModal();
-        let newSong={title:document.getElementById("edit-song-modal-title-textfield").value,
-                    artist:document.getElementById("edit-song-modal-artist-textfield").value,
-                    youTubeId:document.getElementById("edit-song-modal-youTubeId-textfield").value,
-        }
+        console.log(newSong)
+        console.log(store.selectSongEditIndex)
         store.currentList.songs.splice(store.selectSongEditIndex,1,newSong);
+        console.log(store.currentList);
         //backend changes-> setcurrentlist go to backend get  data-> setcurrentlist used data to update store
         async function asyncUpdateAfterEditSong(){
             //this handles the storing of new data in database already
@@ -463,14 +465,28 @@ export const useGlobalStore = () => {
         let modal= document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
     }
+
+    //transaction methods for add, edit,delete, move songs to allow undo/redo
     store.addMoveSongTransaction=function(start,end){
-        let transaction=new MoveSong_Transaction(store,start, end)
+        let transaction=new MoveSong_Transaction(store,start, end);
         tps.addTransaction(transaction);
     }
     store.AddSong_Transaction=function(){
-        let transaction=new AddSong_Transaction(store)
+        let transaction=new AddSong_Transaction(store);
         tps.addTransaction(transaction);
     }
+    store.editSong_Transaction=function(){
+        let oldSong=store.currentList.songs[store.selectSongEditIndex];
+        let newSong={_id:store.currentList.songs[store.selectSongEditIndex]._id,
+                    title:document.getElementById("edit-song-modal-title-textfield").value,
+                    artist:document.getElementById("edit-song-modal-artist-textfield").value,
+                    youTubeId:document.getElementById("edit-song-modal-youTubeId-textfield").value,
+        }
+        let transaction=new EditSong_Transaction(store,store.selectSongEditIndex,oldSong,newSong);
+        tps.addTransaction(transaction);
+    }
+
+    //undo functions for add, delete
     store.undoAddNewSong=function(){
         storeReducer({
             type:GlobalStoreActionType.SELECT_SONG,
