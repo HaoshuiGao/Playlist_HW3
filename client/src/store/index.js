@@ -24,6 +24,7 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     SELECT_SONG:"SELECT_SONG",
     EDIT_SONG:"EDIT_SONG",
+    MODAL_STATE:"MODAL_STATE"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -42,7 +43,8 @@ export const useGlobalStore = () => {
         selectSongDelete:null,
         selectSongDeleteIndex:null,
         selectSongEdit:null,
-        selectSongEditIndex:null
+        selectSongEditIndex:null,
+        modalState:false
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -61,7 +63,8 @@ export const useGlobalStore = () => {
                     selectSongDelete:store.selectSongDelete,
                     selectSongDeleteIndex:store.selectSongDeleteIndex,
                     selectSongEdit:store.selectSongEdit,
-                    selectSongEditIndex:store.selectSongEditIndex
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:store.modalState
                 });
             }
             // STOP EDITING THE CURRENT LIST
@@ -75,7 +78,8 @@ export const useGlobalStore = () => {
                     selectSongDelete:store.selectSongDelete,
                     selectSongDeleteIndex:store.selectSongDeleteIndex,
                     selectSongEdit:store.selectSongEdit,
-                    selectSongEditIndex:store.selectSongEditIndex
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:store.modalState
                 })
             }
             // CREATE A NEW LIST
@@ -89,7 +93,8 @@ export const useGlobalStore = () => {
                     selectSongDelete:store.selectSongDelete,
                     selectSongDeleteIndex:store.selectSongDeleteIndex,
                     selectSongEdit:store.selectSongEdit,
-                    selectSongEditIndex:store.selectSongEditIndex
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:store.modalState
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -103,7 +108,8 @@ export const useGlobalStore = () => {
                     selectSongDelete:store.selectSongDelete,
                     selectSongDeleteIndex:store.selectSongDeleteIndex,
                     selectSongEdit:store.selectSongEdit,
-                    selectSongEditIndex:store.selectSongEditIndex
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:store.modalState
                 });
             }
             // PREPARE TO DELETE A LIST
@@ -117,7 +123,8 @@ export const useGlobalStore = () => {
                     selectSongDelete:store.selectSongDelete,
                     selectSongDeleteIndex:store.selectSongDeleteIndex,
                     selectSongEdit:store.selectSongEdit,
-                    selectSongEditIndex:store.selectSongEditIndex
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:store.modalState
                 });
             }
             // UPDATE A LIST
@@ -131,7 +138,8 @@ export const useGlobalStore = () => {
                     selectSongDelete:store.selectSongDelete,
                     selectSongDeleteIndex:store.selectSongDeleteIndex,
                     selectSongEdit:store.selectSongEdit,
-                    selectSongEditIndex:store.selectSongEditIndex
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:store.modalState
                 });
             }
             // START EDITING A LIST NAME
@@ -145,7 +153,8 @@ export const useGlobalStore = () => {
                     selectSongDelete:store.selectSongDelete,
                     selectSongDeleteIndex:store.selectSongDeleteIndex,
                     selectSongEdit:store.selectSongEdit,
-                    selectSongEditIndex:store.selectSongEditIndex
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:store.modalState
                 });
             }
             // SONG DELETE UPDATE OF ITS OBJECT AND INDEX
@@ -159,7 +168,8 @@ export const useGlobalStore = () => {
                     selectSongDelete:payload.selectSongDelete,
                     selectSongDeleteIndex:payload.selectSongDeleteIndex,
                     selectSongEdit:store.selectSongEdit,
-                    selectSongEditIndex:store.selectSongEditIndex
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:store.modalState
                 });
             }
             // SONG EDIT UPDATE OF ITS OBJECT AND INDEX
@@ -173,8 +183,24 @@ export const useGlobalStore = () => {
                     selectSongDelete:store.selectSongDelete,
                     selectSongDeleteIndex:store.selectSongDeleteIndex,
                     selectSongEdit:payload.selectSongEdit,
-                    selectSongEditIndex:payload.selectSongEditIndex
+                    selectSongEditIndex:payload.selectSongEditIndex,
+                    modalState:store.modalState
                 });
+            }
+            case GlobalStoreActionType.MODAL_STATE:{
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    listForDeletion:store.listForDeletion,
+                    selectSongDelete:store.selectSongDelete,
+                    selectSongDeleteIndex:store.selectSongDeleteIndex,
+                    selectSongEdit:store.selectSongEdit,
+                    selectSongEditIndex:store.selectSongEditIndex,
+                    modalState:payload
+                });
+
             }
             default:
                 return store;
@@ -311,6 +337,10 @@ export const useGlobalStore = () => {
     store.showDeleteListModal=function(_id){
         let modal= document.getElementById("delete-list-modal");
         modal.classList.add("is-visible");
+        storeReducer({
+            type:GlobalStoreActionType.MODAL_STATE,
+            payload:true
+        })        
         let markedListIdNamePair=store.idNamePairs.filter(list=>list._id===_id)[0]
         storeReducer({
             type:GlobalStoreActionType.MARK_LIST_FOR_DELETION,
@@ -323,6 +353,10 @@ export const useGlobalStore = () => {
     store.deleteList=function(){
         let modal= document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible"); 
+        storeReducer({
+            type:GlobalStoreActionType.MODAL_STATE,
+            payload:false
+        })        
         async function asyncdeleteMarkList(){
             //this handles the storing of new data in database already
             const response= await api.deletePlaylistById(store.listForDeletion._id);
@@ -338,6 +372,10 @@ export const useGlobalStore = () => {
     store.hideDeleteListModal=function(){
         let modal= document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible");
+        storeReducer({
+            type:GlobalStoreActionType.MODAL_STATE,
+            payload:false
+        })        
         store.resetListForDeletionToNull();
     }
     store.resetListForDeletionToNull=function(){
@@ -385,11 +423,12 @@ export const useGlobalStore = () => {
     //delete song functions
     store.showDeleteSongModal=function(_id){
         let selectSongDelete=store.currentList.songs[_id];
-        // console.log(_id);  
-        // console.log(store.currentList.songs[_id]);
-        // console.log(store.currentList.songs[_id]._id);
         let modal= document.getElementById("delete-song-modal");
         modal.classList.add("is-visible");
+        storeReducer({
+            type:GlobalStoreActionType.MODAL_STATE,
+            payload:true
+        })        
         //store the delete song object and its index 
         storeReducer({
             type:GlobalStoreActionType.SELECT_SONG,
@@ -402,6 +441,10 @@ export const useGlobalStore = () => {
     store.deleteSong=function(){
         let modal= document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
+        storeReducer({
+            type:GlobalStoreActionType.MODAL_STATE,
+            payload:false
+        })        
         store.currentList.songs.splice(store.selectSongDeleteIndex,1);
         
         async function asyncUpdateAfterDeleteSong(){
@@ -418,6 +461,10 @@ export const useGlobalStore = () => {
     store.hideDeleteSongModal=function(){
         let modal= document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
+        storeReducer({
+            type:GlobalStoreActionType.MODAL_STATE,
+            payload:false
+        })        
     }
     store.updateCurrentList=function(newCurrentList){
         storeReducer({
@@ -430,6 +477,10 @@ export const useGlobalStore = () => {
     store.showEditSongModal=function(index){
         let modal= document.getElementById("edit-song-modal");
         modal.classList.add("is-visible");
+        storeReducer({
+            type:GlobalStoreActionType.MODAL_STATE,
+            payload:true
+        })        
         storeReducer({
             type:GlobalStoreActionType.EDIT_SONG,
             payload:{
@@ -446,10 +497,7 @@ export const useGlobalStore = () => {
     }
     store.editSong=function(index,newSong){
         store.hideEditSongModal();
-        console.log(newSong)
-        console.log(store.selectSongEditIndex)
         store.currentList.songs.splice(store.selectSongEditIndex,1,newSong);
-        console.log(store.currentList);
         //backend changes-> setcurrentlist go to backend get  data-> setcurrentlist used data to update store
         async function asyncUpdateAfterEditSong(){
             //this handles the storing of new data in database already
@@ -465,6 +513,10 @@ export const useGlobalStore = () => {
     store.hideEditSongModal=function(){
         let modal= document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
+        storeReducer({
+            type:GlobalStoreActionType.MODAL_STATE,
+            payload:false
+        })        
     }
 
     //transaction methods for add, edit,delete, move songs to allow undo/redo
@@ -514,6 +566,14 @@ export const useGlobalStore = () => {
             asyncsetCurrentList();
         }
         asyncinsertDeletedSongBack(); 
+    }
+
+    //check has or has not transaction to do for undo redo fool proof
+    store.hasRedo=function(){
+        return tps.hasTransactionToRedo();
+    }
+    store.hasUndo=function(){
+        return tps.hasTransactionToUndo();
     }
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };

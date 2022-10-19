@@ -8,6 +8,7 @@ import { Banner, ListSelector, PlaylistCards, Statusbar,DeleteListModal,DeleteSo
     @author McKilla Gorilla
 */
 const App = () => {
+    
     return (
         <Router>
             <Banner />
