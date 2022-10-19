@@ -68,6 +68,7 @@ body {
   grid-row: 2 / 3;
   display:grid;
   background-color: var(--swatch-primary);
+  font-size: 40pt;
 }
 
 .playlister-button, .playlister-button-disabled {
